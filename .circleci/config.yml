@@ -16,20 +16,20 @@ commands:
       - run: echo << parameters.circle_id >>
 jobs:
   create_infrastructure: 
-      executor: aws-cli/default
-      steps:
-        - checkout
-        - aws-cli/setup:
-          aws-access-key-id: ACCESS_KEY
-          aws-secret-access-key: SECRET_KEY
-          aws-region: REGION
-        - run:
-            name: Create Cloudformation Stack
-            command: |
-              aws cloudformation deploy \
-                --template-file template.yml \
-                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-                --region us-east-1
+    executor: aws-cli/default
+    steps:
+      - checkout
+      - aws-cli/setup:
+        aws-access-key-id: ACCESS_KEY
+        aws-secret-access-key: SECRET_KEY
+        aws-region: REGION
+      - run:
+          name: Create Cloudformation Stack
+          command: |
+            aws cloudformation deploy \
+              --template-file template.yml \
+              --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region us-east-1
   print_hello:
     docker: 
       - image: circleci/node:13.8.0
