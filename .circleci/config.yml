@@ -1,26 +1,107 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
+# Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+# Use a package of configuration called an orb.
+orbs:
+  # Declare a dependency on the welcome-orb
+  welcome: circleci/welcome-orb@0.4.1
+  aws-cli: circleci/aws-cli@3.1.4
+# Orchestrate or schedule a set of jobs
+commands:
+  print_pipeline_id:
+    description: "Print the circle workflow id"
+    parameters:
+      circle_id:
+        type: string
+    steps:
+      - run: echo << parameters.circle_id >>
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+  create_infrastructure: 
+      docker:
+        - image: amazon/aws-cli
+      steps:
+        - checkout
+        - run:
+            name: Create Cloudformation Stack
+            command: |
+              aws cloudformation deploy \
+                --template-file template.yml \
+                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+                --region us-east-1
+  print_hello:
+    docker: 
+      - image: circleci/node:13.8.0
+    steps:
+      - run:
+          name: "Print Hello"
+          command: echo "Hello"
+
+  print_world:
+    docker: 
+      - image: circleci/node:13.8.0
+    steps:
+      - run:
+          name: "Print World"
+          command: echo "World"
+      
+  print_my_name:
+    docker: 
+      - image: circleci/node:13.8.0
+    environment:
+      NAME: Hanan
+    steps:
+      - run:
+          name: "Print My Name"
+          command: echo $NAME
+  save_hello_world:
+    docker: 
+      - image: circleci/node:13.8.0
+    steps:
+      - run:
+          name: "Save hello world"
+          command: echo "Hello world" > ~/output.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - output.txt
+  print_output_file:
+    docker: 
+      - image: circleci/node:13.8.0
+    steps:
+      - print_pipeline_id:
+          circle_id: $CIRCLE_WORKFLOW_ID
+      - attach_workspace:
+          at: ~/
+      - run: cat ~/output.txt
+  aws-cli-example:
+    executor: aws-cli/default
     steps:
       - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+      - aws-cli/setup:
+          aws-access-key-id: ACCESS_KEY
+          aws-secret-access-key: SECRET_KEY
+          aws-region: REGION
+      - run: aws iam list-users
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+
+  fail_test:
+    docker: 
+      - image: circleci/node:13.8.0
+    steps:
+      - run: exit 1
+      - run:
+          name: "Testing fail"
+          command: echo "Failed test"
+          when: on_fail
+      
+      
+
+
+
+  
+  
 workflows:
-  say-hello-workflow:
+  # Name the workflow "welcome"
+  welcome:
+    # Run the welcome/run job in its own container
     jobs:
-      - say-hello
+      - create_infrastructure
