@@ -16,8 +16,7 @@ commands:
       - run: echo << parameters.circle_id >>
 jobs:
   create_infrastructure: 
-      docker:
-        - image: amazon/aws-cli
+      executor: aws-cli/default
       steps:
         - checkout
         - aws-cli/setup:
