@@ -104,4 +104,7 @@ workflows:
   welcome:
     # Run the welcome/run job in its own container
     jobs:
+      - aws-cli-example
       - create_infrastructure
+          requires:
+            - aws-cli-example
