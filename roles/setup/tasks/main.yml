@@ -13,12 +13,6 @@
   become: yes
   apt:
     autoremove: yes
-
-- name: "Copy ansible cfg file"
-  copy:
-    src: "files/ansible.cfg"
-    dest: "~/ansible.cfg"
-    backup: yes
     
 - name: "Install nodejs and npm"
   become: yes
