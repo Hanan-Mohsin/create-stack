@@ -59,6 +59,7 @@ jobs:
       - image: alpine:latest
       - image: amazon/aws-cli
     steps:
+      - checkout
       - run: apk add --update curl
       - aws-cli/setup:
           aws-access-key-id: ACCESS_KEY
