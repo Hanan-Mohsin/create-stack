@@ -26,71 +26,23 @@ jobs:
       - run:
           name: Create Cloudformation Stack
           command: aws cloudformation deploy --template-file template.yml --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} --region us-east-1
-  print_hello:
-    docker: 
-      - image: circleci/node:13.8.0
-    steps:
-      - run:
-          name: "Print Hello"
-          command: echo "Hello"
 
-  print_world:
-    docker: 
-      - image: circleci/node:13.8.0
-    steps:
-      - run:
-          name: "Print World"
-          command: echo "World"
-      
-  print_my_name:
-    docker: 
-      - image: circleci/node:13.8.0
-    environment:
-      NAME: Hanan
-    steps:
-      - run:
-          name: "Print My Name"
-          command: echo $NAME
-  save_hello_world:
-    docker: 
-      - image: circleci/node:13.8.0
-    steps:
-      - run:
-          name: "Save hello world"
-          command: echo "Hello world" > ~/output.txt
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - output.txt
-  print_output_file:
-    docker: 
-      - image: circleci/node:13.8.0
-    steps:
-      - print_pipeline_id:
-          circle_id: $CIRCLE_WORKFLOW_ID
-      - attach_workspace:
-          at: ~/
-      - run: cat ~/output.txt
-  aws-cli-example:
-    executor: aws-cli/default
+  # Exercise: Config and Deployment
+  configure_infrastructure: 
+    docker:
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - aws-cli/setup:
-          aws-access-key-id: ACCESS_KEY
-          aws-secret-access-key: SECRET_KEY
-          aws-region: REGION
-      - run: aws iam list-users
-
-
-  fail_test:
-    docker: 
-      - image: circleci/node:13.8.0
-    steps:
-      - run: exit 1
+      - add_ssh_keys:
+              fingerprints: ["dd:a0:f5:2c:b6:9f:ea:ff:0c:98:58:82:43:6b:88:31"] 
       - run:
-          name: "Testing fail"
-          command: echo "Failed test"
-          when: on_fail
+          name: Install Ansible
+          command: apk add --update ansible
+      - run:
+          name: Run Playbook and Configure server
+          command: ansible-playbook -i inventory.txt main.yml
+
+  
       
       
 
@@ -103,5 +55,5 @@ workflows:
   welcome:
     # Run the welcome/run job in its own container
     jobs:
-      - create_infrastructure
+      - configure_infrastructure
     
