@@ -53,7 +53,7 @@ jobs:
       - run:
           name: smoke test
           command: |
-            URL="ec2-54-237-29-76.compute-1.amazonaws.com:3000"
+            URL="https://blog.udacitrey.com/"
             # Test if website exists
             if curl -s --head ${URL} 
             then
@@ -75,8 +75,5 @@ workflows:
   welcome:
     # Run the welcome/run job in its own container
     jobs:
-      - configure_infrastructure
-      - smoke_test:
-          requires:
-              - configure_infrastructure
+      - smoke_test
     
