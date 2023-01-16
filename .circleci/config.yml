@@ -39,6 +39,7 @@ jobs:
   # Exercise: Config and Deployment
   configure_infrastructure: 
     docker:
+      - image: amazon/aws-cli
       - image: python:3.10-alpine
     steps:
       - checkout
