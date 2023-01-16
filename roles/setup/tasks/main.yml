@@ -19,7 +19,6 @@
   apt: 
     name: ["nodejs","npm"]
     state: latest
-    global: yes
     update_cache: yes
 
 
@@ -27,7 +26,6 @@
   become: yes
   npm:
     name: pm2
-    global: yes
     production: yes
     state: present
 
