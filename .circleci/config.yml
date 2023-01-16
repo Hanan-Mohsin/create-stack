@@ -28,10 +28,10 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - aws-cli/setup:
-          aws-access-key-id: ACCESS_KEY
-          aws-secret-access-key: SECRET_KEY
-          aws-region: REGION
+      # - aws-cli/setup:
+      #     aws-access-key-id: ACCESS_KEY
+      #     aws-secret-access-key: SECRET_KEY
+      #     aws-region: REGION
       - run:
           name: Create Cloudformation Stack
           command: aws cloudformation deploy --template-file template.yml --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} --region us-east-1
@@ -61,10 +61,10 @@ jobs:
     steps:
       - checkout
       - run: apk add --update curl
-      - aws-cli/setup:
-          aws-access-key-id: ACCESS_KEY
-          aws-secret-access-key: SECRET_KEY
-          aws-region: REGION
+      # - aws-cli/setup:
+      #     aws-access-key-id: ACCESS_KEY
+      #     aws-secret-access-key: SECRET_KEY
+      #     aws-region: REGION
       - run:
           name: smoke test
           command: |
