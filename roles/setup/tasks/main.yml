@@ -13,7 +13,7 @@
   become: yes
   apt:
     autoremove: yes
-    
+
 - name: "Install nodejs and npm"
   become: yes
   apt: 
