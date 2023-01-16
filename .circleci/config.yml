@@ -4,7 +4,7 @@ version: 2.1
 orbs:
   # Declare a dependency on the welcome-orb
   welcome: circleci/welcome-orb@0.4.1
-  aws-cli: circleci/aws-cli@3.1.4
+  # aws-cli: circleci/aws-cli@3.1.4
 # Orchestrate or schedule a set of jobs
 commands:
   print_pipeline_id:
@@ -14,9 +14,20 @@ commands:
         type: string
     steps:
       - run: echo << parameters.circle_id >>
+
+  destroy_environment:
+    steps:
+      - run:
+          name: Destroy environment
+          # ${CIRCLE_WORKFLOW_ID} is a Built-in environment variable 
+          # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID 
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:7}
 jobs:
   create_infrastructure: 
-    executor: aws-cli/default
+    docker:
+      - image: amazon/aws-cli
     steps:
       - checkout
       - aws-cli/setup:
@@ -49,18 +60,10 @@ jobs:
     docker:
       - image: alpine:latest
     steps:
-      - run: apk add --update curl
       - run:
-          name: smoke test
-          command: |
-            URL="https://blog.udacitrey.com/"
-            # Test if website exists
-            if curl -s --head ${URL} 
-            then
-              return 0
-            else
-              return 1
-            fi
+          name: Test job
+          command:  return 1
+      - destroy_environment  
 
   
       
@@ -75,5 +78,8 @@ workflows:
   welcome:
     # Run the welcome/run job in its own container
     jobs:
-      - smoke_test
+      - create_infrastructure
+      - smoke_test:
+          - requires:
+              - create_infrastructure: 
     
