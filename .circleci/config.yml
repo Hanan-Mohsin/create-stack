@@ -80,6 +80,6 @@ workflows:
     jobs:
       - create_infrastructure
       - smoke_test:
-          - requires:
+          requires:
               - create_infrastructure
     
